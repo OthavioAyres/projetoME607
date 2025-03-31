@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 """
-Visualização comparativa dos três modelos junto com dados originais
+Visualização comparativa dos quatro modelos junto com dados originais
 """
 
 import pandas as pd
@@ -80,12 +80,21 @@ def calculate_mse(df, test_size=60):
 
 def plot_all_models(df, days_to_show=90):
     """
-    Plota os dados originais e as previsões dos três modelos a partir dos arquivos CSV
+    Plota os dados originais e as previsões dos quatro modelos a partir dos arquivos CSV
     """
     # Carregar as previsões dos arquivos CSV
     naive_predictions = pd.read_csv('models_output/predictions_naive.csv', index_col=0, parse_dates=True)
     ma_predictions = pd.read_csv('models_output/predictions_ma.csv', index_col=0, parse_dates=True)
     reg_predictions = pd.read_csv('models_output/predictions_regression.csv', index_col=0, parse_dates=True)
+    
+    # Verificar se existe o arquivo de previsões do modelo SES
+    ses_file = 'models_output/predictions_ses.csv'
+    if os.path.exists(ses_file):
+        ses_predictions = pd.read_csv(ses_file, index_col=0, parse_dates=True)
+        has_ses = True
+    else:
+        has_ses = False
+        print("Aviso: Arquivo de previsões do modelo SES não encontrado.")
     
     # Calcular MSE dos modelos usando os dados dos CSVs
     print("\nCalculando MSE dos modelos...")
@@ -103,14 +112,24 @@ def plot_all_models(df, days_to_show=90):
     common_dates = df.index.intersection(reg_predictions.index)
     mse_results['Regression'] = mean_squared_error(df.loc[common_dates, 'Close'], reg_predictions.loc[common_dates, 'Prediction'])
     
+    # MSE SES (se disponível)
+    if has_ses:
+        common_dates = df.index.intersection(ses_predictions.index)
+        mse_results['SES'] = mean_squared_error(df.loc[common_dates, 'Close'], ses_predictions.loc[common_dates, 'Prediction'])
+    
     # Criar DataFrame com as previsões para o próximo dia
     next_date = naive_predictions.index[-1] + pd.Timedelta(days=1)
-    future_predictions_df = pd.DataFrame({
+    future_predictions = {
         'Date': [next_date],
         'Naive': [naive_predictions['Prediction'].iloc[-1]],
         'MA': [ma_predictions['Prediction'].iloc[-1]],
         'Regression': [reg_predictions['Prediction'].iloc[-1]]
-    }).set_index('Date')
+    }
+    
+    if has_ses:
+        future_predictions['SES'] = [ses_predictions['Prediction'].iloc[-1]]
+    
+    future_predictions_df = pd.DataFrame(future_predictions).set_index('Date')
     
     # Preparar dados para plotagem
     recent_data = df.iloc[-days_to_show:].copy()
@@ -141,6 +160,13 @@ def plot_all_models(df, days_to_show=90):
              label=f'Previsão Regressão (MSE: {mse_results["Regression"]:.4f})', 
              color='magenta', linestyle='--', alpha=0.7)
     
+    # Plotar SES se disponível
+    if has_ses:
+        ses_recent = ses_predictions[ses_predictions.index >= start_date]
+        plt.plot(ses_recent.index, ses_recent['Prediction'], 
+                label=f'Previsão SES (MSE: {mse_results["SES"]:.4f})', 
+                color='orange', linestyle='--', alpha=0.7)
+    
     # Plotar previsões para o próximo dia
     plt.plot(future_predictions_df.index, future_predictions_df['Naive'], 
              'ro', markersize=8)
@@ -148,6 +174,10 @@ def plot_all_models(df, days_to_show=90):
              'go', markersize=8)
     plt.plot(future_predictions_df.index, future_predictions_df['Regression'], 
              'mo', markersize=8)
+    
+    if has_ses:
+        plt.plot(future_predictions_df.index, future_predictions_df['SES'], 
+                'o', color='orange', markersize=8)
     
     # Adicionar linhas verticais tracejadas para destacar a previsão
     plt.axvline(x=df.index[-1], color='gray', linestyle='--', alpha=0.7)
@@ -177,7 +207,17 @@ def plot_all_models(df, days_to_show=90):
                 textcoords='offset points',
                 bbox=dict(boxstyle='round', fc='lightyellow', alpha=0.8))
     
-    for model, color in zip(['Naive', 'MA', 'Regression'], ['red', 'green', 'magenta']):
+    # Modelos e cores para anotações
+    models_colors = [
+        ('Naive', 'red'), 
+        ('MA', 'green'), 
+        ('Regression', 'magenta')
+    ]
+    
+    if has_ses:
+        models_colors.append(('SES', 'orange'))
+    
+    for model, color in models_colors:
         pred_value = future_predictions_df[model].iloc[0]
         plt.annotate(f'{model}: {pred_value:.2f}', 
                     xy=(future_predictions_df.index[0], pred_value),
@@ -204,6 +244,9 @@ def plot_all_models(df, days_to_show=90):
     print(f"Previsão Naive: {future_predictions_df['Naive'].iloc[0]:.4f} (var: {future_predictions_df['Naive'].iloc[0]-last_price:.4f})")
     print(f"Previsão MA(10): {future_predictions_df['MA'].iloc[0]:.4f} (var: {future_predictions_df['MA'].iloc[0]-last_price:.4f})")
     print(f"Previsão Regressão: {future_predictions_df['Regression'].iloc[0]:.4f} (var: {future_predictions_df['Regression'].iloc[0]-last_price:.4f})")
+    
+    if has_ses:
+        print(f"Previsão SES: {future_predictions_df['SES'].iloc[0]:.4f} (var: {future_predictions_df['SES'].iloc[0]-last_price:.4f})")
     
     print("\n=== MÉTRICAS DE ERRO (MSE) ===")
     for model, mse in mse_results.items():

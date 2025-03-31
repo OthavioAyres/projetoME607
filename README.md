@@ -1,4 +1,3 @@
-
 # Projeto de Análise e Previsão da CPTS11
 
 Este projeto implementa diferentes modelos para análise e previsão de séries temporais de preços do fundo imobiliário CPTS11 (Capitânia Securities II FII).
@@ -16,10 +15,12 @@ O CPTS11 é um fundo de investimento imobiliário (FII) brasileiro negociado na 
 │   ├── naive_model.py    # Implementação do modelo Naive
 │   ├── moving_average_model.py # Implementação do modelo de Médias Móveis
 │   ├── regression_model.py     # Implementação do modelo de Regressão Linear
+│   ├── exponential_smoothing_model.py # Implementação do modelo de Suavização Exponencial
 ├── models_output/        # Diretório para arquivos CSV gerados pelos modelos
 │   ├── predictions_naive.csv       # Previsões do modelo Naive
 │   ├── predictions_ma.csv          # Previsões do modelo de Médias Móveis
 │   ├── predictions_regression.csv  # Previsões do modelo de Regressão Linear
+│   ├── predictions_ses.csv         # Previsões do modelo de Suavização Exponencial
 ├── main.py               # Script principal para visualização e comparação
 ├── CPTS11_historico.csv  # Arquivo de dados históricos
 ├── graficos/             # Diretório para salvar gráficos (criado automaticamente)
@@ -35,6 +36,9 @@ Este modelo calcula a média dos últimos 10 dias para prever o próximo valor. 
 
 ### 3. Modelo de Regressão Linear
 Este modelo utiliza uma regressão linear simples sobre todos os dados históricos para capturar a tendência geral dos preços. A função da linha de tendência é então utilizada para prever o próximo dia.
+
+### 4. Modelo de Suavização Exponencial Simples
+Este modelo atribui pesos que diminuem exponencialmente conforme as observações se tornam mais antigas. Isso permite que o modelo se adapte mais rapidamente a mudanças recentes, atribuindo mais peso às observações mais recentes.
 
 ## Fluxo de Execução
 
@@ -67,6 +71,7 @@ pip install pandas numpy matplotlib scikit-learn
 python -m models.naive_model
 python -m models.moving_average_model
 python -m models.regression_model
+python -m models.exponential_smoothing_model
 ```
 
 4. Em seguida, execute o script principal para visualizar a comparação:
