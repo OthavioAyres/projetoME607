@@ -1,3 +1,4 @@
+
 # Projeto de Análise e Previsão da CPTS11
 
 Este projeto implementa diferentes modelos para análise e previsão de séries temporais de preços do fundo imobiliário CPTS11 (Capitânia Securities II FII).
@@ -10,14 +11,18 @@ O CPTS11 é um fundo de investimento imobiliário (FII) brasileiro negociado na 
 
 ```
 ├── data_utils.py         # Funções para carregamento de dados
-├── naive_model.py        # Implementação do modelo Naive
-├── moving_average_model.py # Implementação do modelo de Médias Móveis
-├── arima_model.py        # Implementação do modelo ARIMA
-├── regression_model.py   # Implementação do modelo de Regressão Linear
-├── visualization.py      # Funções para visualização
-├── main.py               # Script principal para executar todos os modelos
+├── models/               # Pasta com implementações dos modelos
+│   ├── __init__.py       # Arquivo de inicialização do pacote
+│   ├── naive_model.py    # Implementação do modelo Naive
+│   ├── moving_average_model.py # Implementação do modelo de Médias Móveis
+│   ├── regression_model.py     # Implementação do modelo de Regressão Linear
+├── models_output/        # Diretório para arquivos CSV gerados pelos modelos
+│   ├── predictions_naive.csv       # Previsões do modelo Naive
+│   ├── predictions_ma.csv          # Previsões do modelo de Médias Móveis
+│   ├── predictions_regression.csv  # Previsões do modelo de Regressão Linear
+├── main.py               # Script principal para visualização e comparação
 ├── CPTS11_historico.csv  # Arquivo de dados históricos
-└── resultados/           # Diretório para salvar resultados (criado automaticamente)
+├── graficos/             # Diretório para salvar gráficos (criado automaticamente)
 ```
 
 ## Modelos Implementados
@@ -26,13 +31,17 @@ O CPTS11 é um fundo de investimento imobiliário (FII) brasileiro negociado na 
 O modelo ingênuo (naive) utiliza o último valor observado como previsão para o próximo período. É um baseline simples para comparação com modelos mais complexos.
 
 ### 2. Modelo de Médias Móveis
-Este modelo calcula a média dos últimos N dias para prever o próximo valor. São testadas diferentes janelas de tempo (5, 10, 20 e 50 dias) para identificar qual produz os melhores resultados.
+Este modelo calcula a média dos últimos 10 dias para prever o próximo valor. A média móvel suaviza as flutuações de curto prazo e destaca tendências de médio prazo.
 
-### 3. Modelo ARIMA
-ARIMA (AutoRegressive Integrated Moving Average) é um modelo estatístico que analisa dependências temporais nos dados. O código busca automaticamente os melhores parâmetros (p, d, q) para o modelo.
+### 3. Modelo de Regressão Linear
+Este modelo utiliza uma regressão linear simples sobre todos os dados históricos para capturar a tendência geral dos preços. A função da linha de tendência é então utilizada para prever o próximo dia.
 
-### 4. Modelo de Regressão Linear
-Este modelo utiliza características criadas a partir dos dados históricos (como lags, médias móveis, dia da semana, etc.) para prever os preços futuros através de regressão linear.
+## Fluxo de Execução
+
+O projeto segue um fluxo em duas etapas:
+
+1. **Geração de previsões**: Cada modelo gera um arquivo CSV com suas previsões para todos os dias históricos e para o próximo dia.
+2. **Visualização e comparação**: O script principal (`main.py`) lê os arquivos CSV e gera gráficos comparativos.
 
 ## Requisitos
 
@@ -40,49 +49,52 @@ Para executar este projeto, você precisa das seguintes bibliotecas Python:
 - pandas
 - numpy
 - matplotlib
-- seaborn
 - scikit-learn
-- statsmodels
 
 Você pode instalar todas as dependências necessárias com:
 
 ```bash
-pip install pandas numpy matplotlib seaborn scikit-learn statsmodels
+pip install pandas numpy matplotlib scikit-learn
 ```
 
 ## Como Executar
 
 1. Clone o repositório ou baixe os arquivos
 2. Certifique-se de que o arquivo `CPTS11_historico.csv` está no diretório raiz
-3. Execute o script principal:
+3. Execute primeiro cada modelo para gerar as previsões:
+
+```bash
+python -m models.naive_model
+python -m models.moving_average_model
+python -m models.regression_model
+```
+
+4. Em seguida, execute o script principal para visualizar a comparação:
 
 ```bash
 python main.py
 ```
 
-Este comando irá:
-- Carregar os dados históricos
-- Executar todos os modelos implementados
-- Comparar seus desempenhos
-- Gerar visualizações e salvar os resultados no diretório `resultados/`
-
 ## Métricas de Avaliação
 
-Os modelos são avaliados usando as seguintes métricas:
-- MAE (Mean Absolute Error) - Erro Absoluto Médio
-- RMSE (Root Mean Square Error) - Erro Quadrático Médio
-- R² (Coeficiente de Determinação)
-- MAPE (Mean Absolute Percentage Error) - Erro Percentual Absoluto Médio
+Os modelos são avaliados usando o MSE (Mean Squared Error - Erro Quadrático Médio). Esta métrica é calculada comparando as previsões históricas com os valores reais observados.
 
-## Arquivos de Resultado
+## Visualizações Geradas
 
-Após a execução, serão gerados os seguintes arquivos de resultado:
-- `resultados/comparacao_modelos.png`: Gráfico comparando o desempenho dos modelos
-- `resultados/previsoes_futuras.png`: Gráfico com as previsões futuras dos modelos
-- `resultados/avaliacao_modelos.csv`: Tabela com as métricas de avaliação de cada modelo
+Após a execução, serão gerados os seguintes gráficos:
+- `graficos/comparacao_modelos.png`: Gráfico comparando os modelos com:
+  - Dados históricos
+  - Linhas de previsão para cada modelo
+  - Valores MSE para cada modelo
+  - Previsões pontuais para o próximo dia
+  - Anotações explicativas
 
-Além disso, cada modelo individual também gera suas próprias visualizações específicas.
+A visualização inclui:
+- Linhas de previsão históricas para cada modelo
+- Pontos de previsão para o próximo dia
+- Valores MSE para comparação quantitativa
+- Identificação automática do melhor modelo (menor MSE)
 
 ## Autor
 
-Projeto desenvolvido para disciplina ME607 - Séries Temporais, UNICAMP. 
+Projeto desenvolvido para disciplina ME607 - Séries Temporais, UNICAMP.
