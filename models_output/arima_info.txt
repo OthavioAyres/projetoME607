@@ -1,0 +1,4 @@
+Parâmetros ARIMA: (2, 1, 2)
+MSE: 0.003732
+RMSE: 0.061093
+MAE: 0.043739
