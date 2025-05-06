@@ -1,5 +1,7 @@
 # Projeto de Análise e Previsão da CPTS11
 
+'for file in models/*.py; do python "$file"; done'
+
 Este projeto implementa diferentes modelos para análise e previsão de séries temporais de preços do fundo imobiliário CPTS11 (Capitânia Securities II FII).
 
 ## Descrição
