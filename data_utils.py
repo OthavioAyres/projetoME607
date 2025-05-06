@@ -25,8 +25,9 @@ def load_data():
     # Carregar os dados
     df = pd.read_csv('CPTS11_historico.csv', skiprows=2)
     
+    # Começa 1/10/2023 e termina 01/04/2025
     # Manter apenas as duas primeiras colunas e apenas o último ano
-    df = df.iloc[-500:, :2]
+    df = df.iloc[-360:, :2]
     
     # Renomear a segunda coluna para 'Close'
     df.columns = ['Date', 'Close']
