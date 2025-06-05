@@ -23,19 +23,24 @@ def load_data():
         DataFrame com os dados preparados do CPTS11
     """
     # Carregar os dados
-    df = pd.read_csv('CPTS11_historico.csv', skiprows=2)
+    df = pd.read_csv('CPTS11_new.csv') #, skiprows=2)
     
     # Começa 1/10/2023 e termina 01/04/2025
     # Manter apenas as duas primeiras colunas e apenas o último ano
-    df = df.iloc[-360:, :2]
+    df = df.iloc[:, :2]
     
     # Renomear a segunda coluna para 'Close'
     df.columns = ['Date', 'Close']
     
     # Converter "Date" para datetime e definir como índice
-    df['Date'] = pd.to_datetime(df['Date'])
+    df['Date'] = pd.to_datetime(df['Date'], format='%d/%m/%Y')
     df.set_index('Date', inplace=True)
     print("df.shape", df.shape)
+    
+    # Converter a coluna 'Close' para numérico
+    df['Close'] = pd.to_numeric(df['Close'].str.replace(',', '.'), errors='coerce')
+    # Remover linhas com valores faltantes
+    df = df.dropna()
     
     return df
 

@@ -20,6 +20,9 @@ import warnings
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from data_utils import load_data
 
+# Definição global do diretório de saída dos gráficos
+output_dir = 'graficos/EDA'
+
 def calcular_estatisticas_descritivas(df):
     """
     Calcula e exibe estatísticas descritivas dos dados.
@@ -102,7 +105,7 @@ def plotar_serie_temporal(df, dias_para_mostrar=None):
     
     # Configurar eixos e títulos
     plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
-    plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=1))
+    plt.gca().xaxis.set_major_locator(mdates.MonthLocator(interval=12))
     plt.xticks(rotation=45)
     
     plt.grid(True, alpha=0.3)
@@ -113,7 +116,6 @@ def plotar_serie_temporal(df, dias_para_mostrar=None):
     plt.tight_layout()
     
     # Salvar gráfico
-    output_dir = 'graficos'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(f'{output_dir}/serie_temporal.png', dpi=300, bbox_inches='tight')
@@ -147,7 +149,6 @@ def plotar_correlograma(df, lags=40):
     plt.tight_layout()
     
     # Salvar gráfico
-    output_dir = 'graficos'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(f'{output_dir}/correlograma_series_cpts11.png', dpi=300, bbox_inches='tight')
@@ -186,7 +187,6 @@ def plotar_distribuicao_retornos(df):
     plt.tight_layout()
     
     # Salvar gráfico
-    output_dir = 'graficos'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(f'{output_dir}/distribuicao_retornos.png', dpi=300, bbox_inches='tight')
@@ -250,7 +250,6 @@ def plotar_decomposicao_classica(df, periodo=20):
     plt.tight_layout()
     
     # Salvar gráfico
-    output_dir = 'graficos'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
     plt.savefig(f'{output_dir}/decomposicao_classica.png', dpi=300, bbox_inches='tight')
@@ -307,7 +306,7 @@ def executar_analise_exploratoria():
         os.makedirs(output_dir)
     estatisticas.to_csv(f'{output_dir}/estatisticas_descritivas.csv')
     
-    print("\nAnálise exploratória concluída. Os gráficos foram salvos na pasta 'graficos'.")
+    print("\nAnálise exploratória concluída. Os gráficos foram salvos na pasta 'graficos/EDA'.")
     print("As estatísticas descritivas foram salvas em 'resultados/estatisticas_descritivas.csv'.")
 
 if __name__ == "__main__":
