@@ -1,4 +1,79 @@
-Parâmetros ARIMA: (2, 1, 2)
-MSE: 0.003732
-RMSE: 0.061093
-MAE: 0.043739
+Parâmetros ARIMA: (1, 1, 2)
+MSE: 0.002204
+RMSE: 0.046943
+MAE: 0.028700
+
+
+othavioayres@othavioayres-Inspiron-3576:~/UNICAMP/ME607/projeto$ python3 models/arima_model.py 
+df.shape (2808, 1)
+Dados carregados: 2558 observações
+
+=== Teste de Estacionariedade (ADF) ===
+Estatística de teste: -1.1910
+Valor-p: 0.6775
+Valor crítico (1%): -3.4329
+Valor crítico (5%): -2.8627
+Valor crítico (10%): -2.5674
+Série não é estacionária (95% confiança)
+
+Ajustando modelo ARIMA(2, 1, 2)...
+
+=== Resumo do Modelo ARIMA ===
+                               SARIMAX Results                                
+==============================================================================
+Dep. Variable:                  Close   No. Observations:                 2558
+Model:                 ARIMA(2, 1, 2)   Log Likelihood                4243.287
+Date:                Thu, 05 Jun 2025   AIC                          -8476.574
+Time:                        17:59:47   BIC                          -8447.341
+Sample:                             0   HQIC                         -8465.973
+                               - 2558                                         
+Covariance Type:                  opg                                         
+==============================================================================
+
+Parâmetros estimados:
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+ar.L1          0.6387      0.079      8.036      0.000       0.483       0.794
+ar.L2         -0.1002      0.074     -1.350      0.177      -0.246       0.045
+ma.L1         -0.7260      0.078     -9.276      0.000      -0.879      -0.573
+ma.L2          0.2390      0.075      3.208      0.001       0.093       0.385
+sigma2         0.0021   2.54e-05     83.342      0.000       0.002       0.002
+==============================================================================
+
+Modelo ARIMA(2, 1, 2): previsão para 2025-06-05 = 7.3466
+
+Previsão ARIMA(2, 1, 2): 7.3466 para 2025-06-05
+
+Gerando previsões históricas...
+
+Otimizando parâmetros do modelo ARIMA usando 80% dos dados...
+
+=== Teste de Estacionariedade (ADF) ===
+Estatística de teste: -1.2488
+Valor-p: 0.6523
+Valor crítico (1%): -3.4336
+Valor crítico (5%): -2.8630
+Valor crítico (10%): -2.5675
+Série não é estacionária (95% confiança)
+
+=== Otimizando parâmetros ARIMA ===
+Testando 18 combinações de p, d, q...
+Novo melhor modelo: ARIMA(0, 1, 1) (AIC: -7232.6253)
+Novo melhor modelo: ARIMA(0, 1, 2) (AIC: -7254.1012)
+Progresso: 5/18 (27.8%)
+Novo melhor modelo: ARIMA(1, 1, 2) (AIC: -7256.2275)
+Progresso: 10/18 (55.6%)
+Progresso: 15/18 (83.3%)
+Progresso: 18/18 (100.0%)
+
+Melhores parâmetros encontrados: ARIMA(1, 1, 2) (AIC: -7256.2275)
+
+
+
+Métricas de erro do modelo ARIMA(1, 1, 2):
+MSE: 0.002204
+RMSE: 0.046943
+MAE: 0.028700
+Previsões ARIMA salvas em 'models_output/predictions_arima.csv'
+othavioayres@othavioayres-Inspiron-3576:~/UNICAMP/ME607/projeto$ 

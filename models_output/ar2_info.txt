@@ -1,5 +1,0 @@
-Modelo: AR(2)
-Diferenciação aplicada: True
-MSE: 0.003833
-RMSE: 0.061913
-MAE: 0.043689

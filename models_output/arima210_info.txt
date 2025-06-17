@@ -1,0 +1,54 @@
+Modelo: ARIMA(2,1,0)
+MSE: 0.002186
+RMSE: 0.046750
+MAE: 0.028329
+
+Dados carregados: 2558 observações
+
+Aplicando diferenciação de primeira ordem (ARIMA(2,1,0))...
+
+=== Teste de Estacionariedade (ADF) ===
+Estatística de teste: -19.3913
+Valor-p: 0.0000
+Valor crítico (1%): -3.4329
+Valor crítico (5%): -2.8627
+Valor crítico (10%): -2.5674
+Série é estacionária (95% confiança)
+
+Ajustando modelo ARIMA(2,1,0)...
+
+=== Resumo do Modelo ARIMA(2,1,0) ===
+                            AutoReg Model Results                             
+==============================================================================
+Dep. Variable:                  Close   No. Observations:                 2557
+Model:                     AutoReg(2)   Log Likelihood                4232.552
+Method:               Conditional MLE   S.D. of innovations              0.046
+Date:                Thu, 05 Jun 2025   AIC                          -8457.104
+Time:                        17:48:37   BIC                          -8433.721
+Sample:                             2   HQIC                         -8448.624
+                                 2557                                         
+==============================================================================
+
+Parâmetros estimados:
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const          0.0019      0.001      2.093      0.036       0.000       0.004
+Close.L1      -0.0814      0.020     -4.127      0.000      -0.120      -0.043
+Close.L2       0.0704      0.020      3.566      0.000       0.032       0.109
+==============================================================================
+
+Modelo ARIMA(2,1,0): previsão para 2025-06-05 = 7.3504
+
+Previsão ARIMA(2,1,0): 7.3504 para 2025-06-05
+
+Gerando previsões históricas...
+
+Gerando previsões históricas com ARIMA(2,1,0)...
+
+
+Métricas de erro do modelo ARIMA(2,1,0):
+MSE: 0.002186
+RMSE: 0.046750
+MAE: 0.028329
+Previsões ARIMA(2,1,0) salvas em 'models_output/predictions_arima210.csv'

@@ -1,0 +1,7 @@
+
+Métricas de erro do modelo Prophet:
+MSE: 0.101218
+RMSE: 0.318148
+MAE: 0.188609
+Previsões Prophet salvas em 'models_output/predictions_prophet.csv'
+othavioayres@othavioayres-Inspiron-3576:~/UNICAMP/ME607/projeto$ 

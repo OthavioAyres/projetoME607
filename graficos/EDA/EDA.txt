@@ -1,0 +1,42 @@
+python3 EDA.py 
+df.shape (2808, 1)
+Dados carregados: 2558 observações
+Período: 2014-09-01 a 2025-06-04
+
+=== VERIFICAÇÃO DE VALORES FALTANTES ===
+Total de valores faltantes: 0
+Percentual de valores faltantes: 0.00%
+
+=== ESTATÍSTICAS DESCRITIVAS ===
+count    2558.000000
+mean        5.170158
+std         1.469251
+min         2.510057
+25%         3.877846
+50%         5.314613
+75%         6.444850
+max         7.616441
+Name: Close, dtype: float64
+
+=== ESTATÍSTICAS ADICIONAIS ===
+Variância: 2.1587
+Assimetria: -0.1294
+Curtose: -1.2656
+Primeiro valor: 2.5101
+Último valor: 7.3500
+Variação (%): 192.8220
+Retorno médio diário (%): 0.0463
+Volatilidade diária (%): 0.9292
+
+=== DECOMPOSIÇÃO CLÁSSICA (período = 20) ===
+
+=== ESTATÍSTICAS DOS COMPONENTES ===
+Média da tendência: 5.1719
+Média da sazonalidade: 0.0000
+Média dos resíduos: 0.0001
+Desvio padrão da tendência: 1.4563
+Desvio padrão da sazonalidade: 0.0045
+Desvio padrão dos resíduos: 0.0602
+
+Análise exploratória concluída. Os gráficos foram salvos na pasta 'graficos/EDA'.
+As estatísticas descritivas foram salvas em 'resultados/estatisticas_descritivas.csv'.
