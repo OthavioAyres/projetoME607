@@ -109,6 +109,32 @@ def evaluate_model(y_true, y_pred, nome_modelo="Modelo"):
     return resultados
 
 
+def calcular_retorno_log(df):
+    """
+    Calcula os retornos logarítmicos a partir da coluna de fechamento ('Close').
+    Trata valores faltantes e datas não sequenciais.
+
+    Parâmetros:
+    ----------
+    df : DataFrame
+        DataFrame com a coluna 'Close' (preços de fechamento)
+    
+    Retorna:
+    -------
+    Series
+        Série de retornos logarítmicos
+    """
+    import numpy as np
+    # Garante que a coluna 'Close' está ordenada por data
+    df = df.sort_index()
+    # Calcula o retorno logarítmico
+    retorno_log = np.log(df['Close'] / df['Close'].shift(1))
+    # Remove valores faltantes
+    retorno_log = retorno_log.dropna()
+    retorno_log.name = 'Retorno_Log'
+    return retorno_log
+
+
 if __name__ == "__main__":
     # Teste rápido para verificar a função
     data = load_data()
