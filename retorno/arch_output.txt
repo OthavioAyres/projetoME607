@@ -1,0 +1,69 @@
+othavioayres@othavioayres-Inspiron-3576:~/UNICAMP/ME607/projeto$ python3 retorno/arch_model.py 
+sys.path ['/home/othavioayres/UNICAMP/ME607/projeto/retorno', '/usr/lib/python310.zip', '/usr/lib/python3.10', '/usr/lib/python3.10/lib-dynload', '/home/othavioayres/.local/lib/python3.10/site-packages', '/usr/local/lib/python3.10/dist-packages', '/usr/lib/python3/dist-packages', '/home/othavioayres/UNICAMP/ME607/projeto']
+df.shape (2808, 1)
+Dados carregados:
+               Close
+Date                
+2014-09-01  2.510057
+2014-09-02  2.510057
+2014-09-03  2.510057
+2014-09-04  2.510057
+2014-09-05  2.510057
+Retornos logarítmicos calculados:
+Date
+2014-09-02    0.0
+2014-09-03    0.0
+2014-09-04    0.0
+2014-09-05    0.0
+2014-09-08    0.0
+Name: Retorno_Log, dtype: float64
+Iteration:      1,   Func. Count:     10,   Neg. LLF: 23534170831.93465
+Iteration:      2,   Func. Count:     26,   Neg. LLF: -8871.410284755526
+
+Resumo do ajuste do modelo ARCH(10):
+                      Constant Mean - ARCH Model Results                      
+==============================================================================
+Dep. Variable:            Retorno_Log   R-squared:                       0.000
+Mean Model:             Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                       ARCH   Log-Likelihood:                8871.41
+Distribution:                  Normal   AIC:                          -17726.8
+Method:            Maximum Likelihood   BIC:                          -17680.0
+                                        No. Observations:                 2557
+Date:                Wed, Jun 18 2025   Df Residuals:                     2556
+Time:                        14:12:30   Df Model:                            1
+                                 Mean Model                                 
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+mu         3.2101e-04  1.574e-04      2.039  4.145e-02 [1.244e-05,6.296e-04]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega      2.5915e-05  5.229e-07     49.564      0.000 [2.489e-05,2.694e-05]
+alpha[1]       0.1167  2.049e-02      5.694  1.239e-08   [7.651e-02,  0.157]
+alpha[2]       0.1167  5.091e-02      2.292  2.193e-02   [1.688e-02,  0.216]
+alpha[3]       0.1167  4.751e-02      2.456  1.406e-02   [2.355e-02,  0.210]
+alpha[4]       0.1167  5.754e-02      2.028  4.260e-02   [3.893e-03,  0.229]
+alpha[5]       0.1167  6.888e-02      1.694  9.030e-02  [-1.833e-02,  0.252]
+alpha[6]       0.1167  7.669e-02      1.521      0.128  [-3.364e-02,  0.267]
+============================================================================
+
+Covariance estimator: robust
+
+Teste Weighted Ljung-Box nos resíduos padronizados ao quadrado (e_hat²):
+
+Lag = 1
+     lb_stat  lb_pvalue
+1  16.109495    0.00006
+Resultado: Há evidência de autocorrelação significativa nos resíduos padronizados ao quadrado para lag 1 (p-valor = 0.0001)
+
+Lag = 17
+      lb_stat  lb_pvalue
+17  44.995865   0.000244
+Resultado: Há evidência de autocorrelação significativa nos resíduos padronizados ao quadrado para lag 17 (p-valor = 0.0002)
+
+Lag = 29
+       lb_stat     lb_pvalue
+29  103.312409  2.867367e-10
+Resultado: Há evidência de autocorrelação significativa nos resíduos padronizados ao quadrado para lag 29 (p-valor = 0.0000)

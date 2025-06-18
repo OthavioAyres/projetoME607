@@ -1,0 +1,92 @@
+othavioayres@othavioayres-Inspiron-3576:~/UNICAMP/ME607/projeto$ python3 retorno/garch_model.py 
+df.shape (2808, 1)
+Dados carregados:
+               Close
+Date                
+2014-09-01  2.510057
+2014-09-02  2.510057
+2014-09-03  2.510057
+2014-09-04  2.510057
+2014-09-05  2.510057
+Retornos logarítmicos calculados:
+Date
+2014-09-02    0.0
+2014-09-03    0.0
+2014-09-04    0.0
+2014-09-05    0.0
+2014-09-08    0.0
+Name: Retorno_Log, dtype: float64
+Iteration:      1,   Func. Count:     11,   Neg. LLF: 53067.0616986183
+Iteration:      2,   Func. Count:     25,   Neg. LLF: 27722.183882700327
+Iteration:      3,   Func. Count:     36,   Neg. LLF: 5811.1479352124825
+Iteration:      4,   Func. Count:     47,   Neg. LLF: 3920.6164136878415
+Iteration:      5,   Func. Count:     58,   Neg. LLF: 3936.062403484313
+Iteration:      6,   Func. Count:     69,   Neg. LLF: 4603.167927778751
+Iteration:      7,   Func. Count:     80,   Neg. LLF: 2395.7528686829264
+Iteration:      8,   Func. Count:     91,   Neg. LLF: 4001.5996611866044
+Iteration:      9,   Func. Count:    102,   Neg. LLF: 2376.5349791789386
+Iteration:     10,   Func. Count:    113,   Neg. LLF: 4086.847455738798
+Iteration:     11,   Func. Count:    124,   Neg. LLF: 2345.6874171451263
+Iteration:     12,   Func. Count:    134,   Neg. LLF: 2348.0883477734124
+Iteration:     13,   Func. Count:    145,   Neg. LLF: 2350.6257786382703
+Iteration:     14,   Func. Count:    156,   Neg. LLF: 2344.1593772132587
+Iteration:     15,   Func. Count:    166,   Neg. LLF: 2344.5039826752754
+Iteration:     16,   Func. Count:    177,   Neg. LLF: 2343.403024534684
+Iteration:     17,   Func. Count:    187,   Neg. LLF: 2343.0228475279205
+Iteration:     18,   Func. Count:    197,   Neg. LLF: 2342.826455497474
+Iteration:     19,   Func. Count:    207,   Neg. LLF: 2342.7420792564503
+Iteration:     20,   Func. Count:    217,   Neg. LLF: 2342.740668372137
+Iteration:     21,   Func. Count:    227,   Neg. LLF: 2342.7406855982617
+Iteration:     22,   Func. Count:    237,   Neg. LLF: 2418.557120591517
+
+Resumo do ajuste do modelo GARCH(1,1):
+                        Constant Mean - GARCH Model Results                         
+====================================================================================
+Dep. Variable:                  Retorno_Log   R-squared:                       0.000
+Mean Model:                   Constant Mean   Adj. R-squared:                  0.000
+Vol Model:                            GARCH   Log-Likelihood:               -2342.74
+Distribution:      Standardized Student's t   AIC:                           4703.48
+Method:                  Maximum Likelihood   BIC:                           4756.10
+                                              No. Observations:                 2557
+Date:                      Wed, Jun 18 2025   Df Residuals:                     2556
+Time:                              14:13:05   Df Model:                            1
+                                 Mean Model                                 
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+mu             0.0354  6.412e-03      5.520  3.390e-08 [2.283e-02,4.796e-02]
+                              Volatility Model                              
+============================================================================
+                 coef    std err          t      P>|t|      95.0% Conf. Int.
+----------------------------------------------------------------------------
+omega          0.0130  4.876e-03      2.675  7.482e-03 [3.485e-03,2.260e-02]
+alpha[1]       0.3034  5.251e-02      5.779  7.534e-09     [  0.201,  0.406]
+alpha[2]   4.5168e-07  8.882e-02  5.085e-06      1.000     [ -0.174,  0.174]
+beta[1]        0.4998      0.261      1.918  5.513e-02  [-1.098e-02,  1.011]
+beta[2]    7.6285e-07      0.187  4.070e-06      1.000     [ -0.367,  0.367]
+beta[3]    1.4807e-07      0.170  8.710e-07      1.000     [ -0.333,  0.333]
+beta[4]        0.1968      0.146      1.351      0.177  [-8.870e-02,  0.482]
+                              Distribution                              
+========================================================================
+                 coef    std err          t      P>|t|  95.0% Conf. Int.
+------------------------------------------------------------------------
+nu             3.3211      0.148     22.389 5.021e-111 [  3.030,  3.612]
+========================================================================
+
+Covariance estimator: robust
+0
+
+Teste Weighted Ljung-Box nos resíduos padronizados ao quadrado (e_hat²):
+
+Lag = 1
+    lb_stat  lb_pvalue
+1  0.001723    0.96689
+
+Lag = 4
+    lb_stat  lb_pvalue
+4  1.847856   0.763716
+
+Lag = 10
+     lb_stat  lb_pvalue
+10  6.217925   0.796634
+othavioayres@othavioayres-Inspiron-3576:~/UNICAMP/ME607/projeto$ 
