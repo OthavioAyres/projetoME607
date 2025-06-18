@@ -4,7 +4,7 @@ sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from data_utils import load_data, calcular_retorno_log
 print("sys.path", sys.path)
 if __name__ == "__main__":
-    p_modelo = 10
+    p_modelo = 6
     # Carregar os dados de fechamento
     df = load_data()
     print("Dados carregados:")
@@ -18,17 +18,32 @@ if __name__ == "__main__":
     # Ajustar o modelo ARCH(10)
     from arch import arch_model
     modelo = arch_model(retornos, vol='ARCH', p=p_modelo, rescale=False)
-    resultado = modelo.fit(disp='off')
+    resultado = modelo.fit(disp='on', options={'maxiter': 100000})
     print("\nResumo do ajuste do modelo ARCH(10):")
     print(resultado.summary())
 
     # Salvar resíduos e volatilidade estimada para uso posterior
-    residuos = resultado.resid
+    residuos = resultado.resid 
     volatilidade = resultado.conditional_volatility
-
+    e_hat = residuos/volatilidade
     # Exportar resíduos e volatilidade para arquivos CSV
     residuos.to_csv('residuos_arch10.csv', header=True)
     volatilidade.to_csv('volatilidade_arch10.csv', header=True)
+
+        # Aplicar o teste Weighted Ljung-Box nos resíduos ao quadrado
+    from statsmodels.stats.diagnostic import acorr_ljungbox
+    print('\nTeste Weighted Ljung-Box nos resíduos padronizados ao quadrado (e_hat²):')
+    lags_to_test = [1, 3*p_modelo-1, 5*p_modelo-1]
+    for lag in lags_to_test:
+        ljungbox_result = acorr_ljungbox((e_hat**2).dropna(), lags=[lag], return_df=True)
+        print(f"\nLag = {lag}")
+        print(ljungbox_result)
+        p_value = ljungbox_result['lb_pvalue'].iloc[0]
+        if p_value < 0.05:
+            print(f"Resultado: Há evidência de autocorrelação significativa nos resíduos padronizados ao quadrado para lag {lag} (p-valor = {p_value:.4f})")
+        else:
+            print(f"Resultado: Não há evidência de autocorrelação significativa nos resíduos padronizados ao quadrado para lag {lag} (p-valor = {p_value:.4f})")
+
 
     # Gerar e exibir gráfico da volatilidade estimada ao longo do tempo
     import matplotlib.pyplot as plt
@@ -44,10 +59,11 @@ if __name__ == "__main__":
     plt.savefig(os.path.join(output_dir, 'volatilidade_arch.png'))
     plt.show()
 
-    # Gerar e exibir gráfico dos resíduos do modelo (e_hat)
+
+    # Gráfico dos resíduos
     plt.figure(figsize=(12, 5))
-    plt.plot(residuos, label='Resíduos (e_hat)', color='orange')
-    plt.title('Resíduos do Modelo ARCH(10)')
+    plt.plot(e_hat, label='Resíduos padronizados (e_hat)', color='orange')
+    plt.title('Resíduos do Modelo Arch(6)')
     plt.xlabel('Data')
     plt.ylabel('Resíduo')
     plt.legend()
@@ -55,12 +71,12 @@ if __name__ == "__main__":
     plt.savefig(os.path.join(output_dir, 'residuos_arch.png'))
     plt.show()
 
-    # Gerar e exibir gráfico dos resíduos ao quadrado (e_hat²)
+    # Gráfico dos resíduos ao quadrado
     plt.figure(figsize=(12, 5))
-    plt.plot(residuos**2, label='Resíduos ao Quadrado (e_hat²)', color='green')
-    plt.title('Resíduos ao Quadrado do Modelo ARCH(10)')
+    plt.plot(e_hat**2, label='Resíduos padronizados ao Quadrado (e_hat²)', color='green')
+    plt.title('Resíduos padronizados ao Quadrado do Modelo Arch(6)')
     plt.xlabel('Data')
-    plt.ylabel('Resíduo ao Quadrado')
+    plt.ylabel('Resíduo padronizado ao Quadrado')
     plt.legend()
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'residuos2_arch.png'))
@@ -69,31 +85,16 @@ if __name__ == "__main__":
     # Calcular e exibir a ACF dos resíduos (e_hat)
     from statsmodels.graphics.tsaplots import plot_acf
     plt.figure(figsize=(10, 4))
-    plot_acf(residuos.dropna(), lags=40, title='ACF dos Resíduos (e_hat)')
+    plot_acf(e_hat.dropna(), lags=40, title='ACF dos erros padronizados (e_hat)')
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'acf_residuos_arch.png'))
     plt.show()
 
     # Calcular e exibir a ACF dos resíduos ao quadrado (e_hat²)
     plt.figure(figsize=(10, 4))
-    plot_acf((residuos**2).dropna(), lags=40, title='ACF dos Resíduos ao Quadrado (e_hat²)')
+    plot_acf((e_hat**2).dropna(), lags=40, title='ACF dos erros padronizados ao Quadrado (e_hat²)')
     plt.tight_layout()
     plt.savefig(os.path.join(output_dir, 'acf_residuos2_arch.png'))
     plt.show()
 
-    # Aplicar o teste Weighted Ljung-Box nos resíduos ao quadrado
-    from statsmodels.stats.diagnostic import acorr_ljungbox
-    print('\nTeste Weighted Ljung-Box nos resíduos ao quadrado (e_hat²):')
-    lags_to_test = [1, 3*p_modelo-1, 5*p_modelo-1]
-    for lag in lags_to_test:
-        ljungbox_result = acorr_ljungbox((residuos**2).dropna(), lags=[lag], return_df=True)
-        print(f"\nLag = {lag}")
-        print(ljungbox_result)
-        p_value = ljungbox_result['lb_pvalue'].iloc[0]
-        if p_value < 0.05:
-            print(f"Resultado: Há evidência de autocorrelação significativa nos resíduos ao quadrado para lag {lag} (p-valor = {p_value:.4f})")
-        else:
-            print(f"Resultado: Não há evidência de autocorrelação significativa nos resíduos ao quadrado para lag {lag} (p-valor = {p_value:.4f})")
 
-
-    # Os retornos estão prontos para serem usados no ajuste do modelo ARCH 
