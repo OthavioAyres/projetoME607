@@ -78,7 +78,7 @@ def calculate_mse(df, test_size=60):
     
     return results
 
-def plot_all_models(df, days_to_show=90):
+def plot_all_models(df, days_to_show=300):
     """
     Plota os dados originais e as previsões dos modelos a partir dos arquivos CSV
     """
@@ -350,11 +350,10 @@ def plot_all_models(df, days_to_show=90):
     for model, mse in mse_results.items():
         print(f"{model}: {mse:.6f}")
     
-    # Identificar os 3 melhores modelos com base no MSE
+    
     sorted_models = sorted(mse_results.items(), key=lambda x: x[1])
-    top_3_models = sorted_models[:3]
-    print("\nTop 3 modelos com menor MSE:")
-    for model, mse in top_3_models:
+    print("\nModelos com menor MSE:")
+    for model, mse in sorted_models:
         print(f"{model}: {mse:.6f}")
     
 
@@ -575,6 +574,100 @@ def plot_zoom_graph(df, days_to_show=30, future_days=5):
     # Mostrar o gráfico
     plt.show()
 
+def plot_individual_models(df, days_to_show=300):
+    """
+    Plota gráficos individuais para cada modelo
+    """
+    # Carregar as previsões dos arquivos CSV
+    models_data = {
+        'Naive': ('predictions_naive.csv', 'red'),
+        'MA': ('predictions_ma.csv', 'green'),
+        'Regression': ('predictions_regression.csv', 'magenta'),
+        'SES': ('predictions_ses.csv', 'orange'),
+        'Prophet': ('predictions_prophet.csv', 'purple'),
+        'ARIMA': ('predictions_arima.csv', 'brown'),
+        'AR(2)': ('predictions_ar2.csv', 'cyan')
+    }
+    
+    # Preparar dados para plotagem
+    recent_data = df.iloc[-days_to_show:].copy()
+    
+    for model_name, (filename, color) in models_data.items():
+        file_path = f'models_output/{filename}'
+        if not os.path.exists(file_path):
+            continue
+            
+        # Carregar previsões do modelo
+        predictions = pd.read_csv(file_path, index_col=0, parse_dates=True)
+        
+        # Calcular MSE
+        common_dates = df.index.intersection(predictions.index)
+        mse = mean_squared_error(df.loc[common_dates, 'Close'], 
+                               predictions.loc[common_dates, 'Prediction'])
+        
+        # Criar figura individual
+        plt.figure(figsize=(12, 6))
+        
+        # Plotar dados históricos
+        plt.plot(recent_data.index, recent_data['Close'], 
+                label='Dados Históricos', color='blue', linewidth=2)
+        
+        # Filtrar dados recentes para o gráfico
+        start_date = recent_data.index[0]
+        model_recent = predictions[predictions.index >= start_date]
+        
+        # Plotar previsões do modelo
+        plt.plot(model_recent.index, model_recent['Prediction'],
+                label=f'Previsão {model_name} (MSE: {mse:.4f})',
+                color=color, linestyle='--', alpha=0.7)
+        
+        # Plotar previsão para o próximo dia
+        next_date = predictions.index[-1] + pd.Timedelta(days=1)
+        next_pred = predictions['Prediction'].iloc[-1]
+        plt.plot(next_date, next_pred, 'o', color=color, markersize=8)
+        
+        # Adicionar linha vertical para o último dia conhecido
+        plt.axvline(x=df.index[-1], color='gray', linestyle='--', alpha=0.7)
+        
+        # Configurar eixo X
+        plt.gca().xaxis.set_major_formatter(mdates.DateFormatter('%d/%m/%Y'))
+        plt.gca().xaxis.set_major_locator(mdates.WeekdayLocator(interval=2))
+        
+        # Adicionar elementos do gráfico
+        plt.grid(True, alpha=0.3)
+        plt.xlabel('Data', fontsize=12)
+        plt.ylabel('Preço de Fechamento', fontsize=12)
+        plt.title(f'Modelo {model_name} - CPTS11', fontsize=14)
+        plt.legend(loc='best')
+        
+        # Rotacionar rótulos do eixo X
+        plt.xticks(rotation=45)
+        
+        # Adicionar anotações
+        last_price = df['Close'].iloc[-1]
+        plt.annotate(f'Último: {last_price:.2f}',
+                    xy=(df.index[-1], last_price),
+                    xytext=(10, -20),
+                    textcoords='offset points',
+                    bbox=dict(boxstyle='round', fc='lightyellow', alpha=0.8))
+        
+        plt.annotate(f'Previsão: {next_pred:.2f}',
+                    xy=(next_date, next_pred),
+                    xytext=(10, 10),
+                    textcoords='offset points',
+                    bbox=dict(boxstyle='round', fc='lightyellow', alpha=0.8),
+                    color=color)
+        
+        plt.tight_layout()
+        
+        # Salvar gráfico individual
+        output_dir = 'graficos'
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        plt.savefig(f'{output_dir}/modelo_{model_name.lower().replace("(","").replace(")","")}.png',
+                    dpi=300, bbox_inches='tight')
+        plt.close()
+
 if __name__ == "__main__":
     # Carregar dados
     data = load_data()
@@ -584,4 +677,7 @@ if __name__ == "__main__":
     plot_all_models(data)
     
     # Plotar gráfico com zoom nos dados recentes
-    plot_zoom_graph(data, days_to_show=3, future_days=1)
+    plot_zoom_graph(data, days_to_show=30, future_days=1)
+    
+    # Plotar gráficos individuais para cada modelo
+    plot_individual_models(data)
