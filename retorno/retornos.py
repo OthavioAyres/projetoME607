@@ -23,4 +23,7 @@ if __name__ == "__main__":
     plt.plot(x, stats.norm.pdf(x, retornos.mean(), retornos.std()), label="Normal", color='red')
     plt.legend()
     plt.title("Distribuição dos Retornos")
+    plt.savefig("retornos_distribuicao.png")
     plt.show()
+    ## salvar o gráfico
+

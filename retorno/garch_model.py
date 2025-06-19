@@ -43,7 +43,7 @@ if __name__ == "__main__":
     # Aplicar o teste Weighted Ljung-Box nos resíduos padronizados ao quadrado (e_hat²):
     from statsmodels.stats.diagnostic import acorr_ljungbox
     print('\nTeste Weighted Ljung-Box nos resíduos padronizados ao quadrado (e_hat²):')
-    lags_to_test = [1, 4, 10]
+    lags_to_test = [1, 4, 10,15]
     for lag in lags_to_test:
         ljungbox_result = acorr_ljungbox((e_hat**2).dropna(), lags=[lag], return_df=True)
         print(f"\nLag = {lag}")
