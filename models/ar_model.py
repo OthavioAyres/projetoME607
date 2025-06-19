@@ -8,9 +8,9 @@ Parâmetros estimados:
 ==============================================================================
                  coef    std err          z      P>|z|      [0.025      0.975]
 ------------------------------------------------------------------------------
-const         -0.0004      0.003     -0.130      0.897      -0.007       0.006
-Close.L1       0.0779      0.053      1.473      0.141      -0.026       0.181
-Close.L2       0.0496      0.053      0.943      0.346      -0.054       0.153
+const          0.0019      0.001      2.093      0.036       0.000       0.004
+Close.L1      -0.0814      0.020     -4.127      0.000      -0.120      -0.043
+Close.L2       0.0704      0.020      3.566      0.000       0.032       0.109
 ==============================================================================
 """
 
@@ -50,13 +50,12 @@ def verificar_estacionariedade(serie):
     
     return estacionaria
 
-def predict_ar2(df, aplicar_diff=True):
+def predict_arima210(df):
     """
-    Utiliza o modelo AR(2) para prever o próximo valor da série
+    Utiliza o modelo ARIMA(2,1,0) para prever o próximo valor da série
     
     Args:
         df: DataFrame com os dados históricos
-        aplicar_diff: Se True, diferencia a série caso não seja estacionária
     
     Returns:
         dict: Dicionário com data e valor da previsão
@@ -64,82 +63,59 @@ def predict_ar2(df, aplicar_diff=True):
     # Suprimir avisos do statsmodels
     warnings.filterwarnings('ignore')
     
-    # Verificar estacionariedade da série
-    estacionaria = verificar_estacionariedade(df['Close'])
-    
-    # Se não for estacionária e aplicar_diff for True, diferenciar a série
+    # Sempre aplicar diferenciação de primeira ordem
+    print("\nAplicando diferenciação de primeira ordem (ARIMA(2,1,0))...")
     serie = df['Close'].copy()
-    diff_aplicada = False
+    serie_diff = serie.diff().dropna()
     
-    if not estacionaria and aplicar_diff:
-        print("\nSérie não estacionária. Aplicando diferenciação...")
-        serie_diff = serie.diff().dropna()
-        # Verificar se a série diferenciada é estacionária
-        estacionaria_diff = verificar_estacionariedade(serie_diff)
-        
-        if estacionaria_diff:
-            print("Série diferenciada é estacionária. Usando diferenciação.")
-            serie = serie_diff
-            diff_aplicada = True
-        else:
-            print("AVISO: Série diferenciada ainda não é estacionária. Resultados podem não ser confiáveis.")
+    # Verificar estacionariedade da série diferenciada
+    verificar_estacionariedade(serie_diff)
     
-    print("\nAjustando modelo AR(2)...")
+    print("\nAjustando modelo ARIMA(2,1,0)...")
     
-    # Treinar modelo AR(2)
-    modelo = AutoReg(serie, lags=2, trend='c')
+    # Treinar modelo AR(2) na série diferenciada
+    modelo = AutoReg(serie_diff, lags=2, trend='c')
     resultado = modelo.fit()
     
     # Resumo do modelo
-    print("\n=== Resumo do Modelo AR(2) ===")
+    print("\n=== Resumo do Modelo ARIMA(2,1,0) ===")
     print(resultado.summary().tables[0].as_text())
     print("\nParâmetros estimados:")
     print(resultado.summary().tables[1].as_text())
     
-    # Fazer previsão para o próximo dia
-    forecast = resultado.forecast(steps=1)
-    # Corrigir o acesso ao valor previsto
-    forecast_value = forecast.iloc[0] if hasattr(forecast, 'iloc') else forecast[0] if isinstance(forecast, np.ndarray) else forecast
+    # Fazer previsão para o próximo dia (diferença)
+    forecast_diff = resultado.forecast(steps=1)
+    forecast_diff_value = forecast_diff.iloc[0] if hasattr(forecast_diff, 'iloc') else forecast_diff[0] if isinstance(forecast_diff, np.ndarray) else forecast_diff
     
-    # Se foi aplicada diferenciação, converter a previsão de volta
-    if diff_aplicada:
-        forecast_value = df['Close'].iloc[-1] + forecast_value
+    # Converter previsão de volta para o valor original
+    forecast_value = df['Close'].iloc[-1] + forecast_diff_value
     
     next_date = pd.date_range(start=df.index[-1] + pd.Timedelta(days=1), periods=1, freq='B')[0]
     
     # Reativar avisos
     warnings.filterwarnings('default')
     
-    print(f"\nModelo AR(2): previsão para {next_date.date()} = {forecast_value:.4f}")
+    print(f"\nModelo ARIMA(2,1,0): previsão para {next_date.date()} = {forecast_value:.4f}")
     
     return {
         'date': next_date,
         'forecast': forecast_value
     }
 
-def generate_historical_predictions(df, aplicar_diff=True):
+def generate_historical_predictions_arima210(df):
     """
-    Gera previsões históricas usando o modelo AR(2)
+    Gera previsões históricas usando o modelo ARIMA(2,1,0)
     
     Args:
         df: DataFrame com os dados históricos
-        aplicar_diff: Se True, diferencia a série caso não seja estacionária
-        
+    
     Returns:
         DataFrame: DataFrame com as previsões históricas
     """
     # Suprimir avisos do statsmodels
     warnings.filterwarnings('ignore')
     
-    # Verificar estacionariedade da série
-    estacionaria = verificar_estacionariedade(df['Close'])
-    
-    # Se não for estacionária e aplicar_diff for True, diferenciar a série
-    diff_aplicada = False
-    
-    if not estacionaria and aplicar_diff:
-        print("\nSérie não estacionária. Aplicando diferenciação para previsões históricas...")
-        diff_aplicada = True
+    print(f"\nGerando previsões históricas com ARIMA(2,1,0)...")
     
     # Criar resultado
     result_df = pd.DataFrame(index=df.index)
@@ -153,8 +129,6 @@ def generate_historical_predictions(df, aplicar_diff=True):
         print(f"Poucos dados para previsões históricas. Necessário pelo menos {min_train_size} observações.")
         return result_df
     
-    print(f"\nGerando previsões históricas com AR(2)...")
-    
     # Loop pelas datas para fazer previsões históricas
     for i in range(min_train_size, len(df)):
         if i % 20 == 0:
@@ -162,33 +136,17 @@ def generate_historical_predictions(df, aplicar_diff=True):
         
         # Usar dados até i-1 para prever i
         train_data = df.iloc[:i].copy()
-        
         try:
-            # Preparar dados
             serie = train_data['Close'].copy()
-            
-            if diff_aplicada:
-                serie_diff = serie.diff().dropna()
-                
-                # Treinar modelo AR(2) na série diferenciada
-                model = AutoReg(serie_diff, lags=2, trend='c')
-                result = model.fit()
-                
-                # Prever próximo valor da diferença
-                forecast_diff = result.forecast(steps=1)
-                forecast_diff = forecast_diff.iloc[0] if hasattr(forecast_diff, 'iloc') else forecast_diff[0] if isinstance(forecast_diff, np.ndarray) else forecast_diff
-                
-                # Converter de volta para o valor original
-                forecast_value = serie.iloc[-1] + forecast_diff
-            else:
-                # Treinar modelo AR(2) na série original
-                model = AutoReg(serie, lags=2, trend='c')
-                result = model.fit()
-                
-                # Prever próximo valor
-                forecast_value = result.forecast(steps=1)
-                forecast_value = forecast_value.iloc[0] if hasattr(forecast_value, 'iloc') else forecast_value[0] if isinstance(forecast_value, np.ndarray) else forecast_value
-            
+            serie_diff = serie.diff().dropna()
+            # Treinar modelo AR(2) na série diferenciada
+            model = AutoReg(serie_diff, lags=2, trend='c')
+            result = model.fit()
+            # Prever próximo valor da diferença
+            forecast_diff = result.forecast(steps=1)
+            forecast_diff = forecast_diff.iloc[0] if hasattr(forecast_diff, 'iloc') else forecast_diff[0] if isinstance(forecast_diff, np.ndarray) else forecast_diff
+            # Converter de volta para o valor original
+            forecast_value = serie.iloc[-1] + forecast_diff
             # Armazenar previsão
             result_df.loc[df.index[i], 'Prediction'] = forecast_value
         except Exception as e:
@@ -202,7 +160,7 @@ def generate_historical_predictions(df, aplicar_diff=True):
     mae = mean_absolute_error(result_df['Close'], result_df['Prediction'])
     rmse = np.sqrt(mse)
     
-    print(f"\nMétricas de erro do modelo AR(2):")
+    print(f"\nMétricas de erro do modelo ARIMA(2,1,0):")
     print(f"MSE: {mse:.6f}")
     print(f"RMSE: {rmse:.6f}")
     print(f"MAE: {mae:.6f}")
@@ -211,14 +169,12 @@ def generate_historical_predictions(df, aplicar_diff=True):
     output_dir = 'models_output'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-        
-    result_df.to_csv(f'{output_dir}/predictions_ar2.csv')
-    print(f"Previsões AR(2) salvas em '{output_dir}/predictions_ar2.csv'")
+    result_df.to_csv(f'{output_dir}/predictions_arima210.csv')
+    print(f"Previsões ARIMA(2,1,0) salvas em '{output_dir}/predictions_arima210.csv'")
     
     # Salvar informações do modelo
-    with open(f'{output_dir}/ar2_info.txt', 'w') as f:
-        f.write(f"Modelo: AR(2)\n")
-        f.write(f"Diferenciação aplicada: {diff_aplicada}\n")
+    with open(f'{output_dir}/arima210_info.txt', 'w') as f:
+        f.write(f"Modelo: ARIMA(2,1,0)\n")
         f.write(f"MSE: {mse:.6f}\n")
         f.write(f"RMSE: {rmse:.6f}\n")
         f.write(f"MAE: {mae:.6f}\n")
@@ -226,8 +182,8 @@ def generate_historical_predictions(df, aplicar_diff=True):
     # Plotar predições vs valores reais para avaliação visual
     plt.figure(figsize=(12, 6))
     plt.plot(result_df.index[-60:], result_df['Close'][-60:], label='Real', color='blue')
-    plt.plot(result_df.index[-60:], result_df['Prediction'][-60:], label='Predição AR(2)', color='green', linestyle='--')
-    plt.title('AR(2) - Previsões vs Valores Reais (Últimos 60 dias)')
+    plt.plot(result_df.index[-60:], result_df['Prediction'][-60:], label='Predição ARIMA(2,1,0)', color='green', linestyle='--')
+    plt.title('ARIMA(2,1,0) - Previsões vs Valores Reais (Últimos 60 dias)')
     plt.xlabel('Data')
     plt.ylabel('Preço')
     plt.legend()
@@ -237,7 +193,7 @@ def generate_historical_predictions(df, aplicar_diff=True):
     output_dir = 'graficos'
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
-    plt.savefig(f'{output_dir}/ar2_predictions.png', dpi=300, bbox_inches='tight')
+    plt.savefig(f'{output_dir}/arima210_predictions.png', dpi=300, bbox_inches='tight')
     
     # Reativar avisos
     warnings.filterwarnings('default')
@@ -250,9 +206,9 @@ if __name__ == "__main__":
     print(f"Dados carregados: {data.shape[0]} observações")
     
     # Fazer previsão para o próximo dia
-    prediction = predict_ar2(data, aplicar_diff=True)
-    print(f"\nPrevisão AR(2): {prediction['forecast']:.4f} para {prediction['date'].date()}")
+    prediction = predict_arima210(data)
+    print(f"\nPrevisão ARIMA(2,1,0): {prediction['forecast']:.4f} para {prediction['date'].date()}")
     
     # Gerar e salvar previsões históricas
     print("\nGerando previsões históricas...")
-    historical_predictions = generate_historical_predictions(data, aplicar_diff=True) 
+    historical_predictions = generate_historical_predictions_arima210(data) 
